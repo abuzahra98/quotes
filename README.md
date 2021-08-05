@@ -5,3 +5,4 @@ go to app
 How to run
 
 In the terminal run  **./gradlew run**
+

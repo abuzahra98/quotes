@@ -5,14 +5,15 @@ package quotes;
 
 import com.google.gson.Gson;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class App {
     public static void main(String[] args) throws FileNotFoundException {
 
-        System.out.println(App.getQuote());
+        System.out.println(App.getQuoteFromAPI());
+
     }
 
     public static String getQuote() throws FileNotFoundException {
@@ -20,10 +21,59 @@ public class App {
         String path = "/Users/dawoodabuzahra/401/quotes/app/src/main/resources/quotes.json";
         File file = new File(path);
         FileReader reader = new FileReader(file);
-        Qoute[] qoutes = gson.fromJson(reader, Qoute[].class);
+        Qoutes[] qoutes = gson.fromJson(reader, Qoutes[].class);
         int max = qoutes.length;
         int rand = (int)(Math.random()*max);
         return qoutes[rand].toString();
+    }
+
+
+
+
+
+
+
+
+    public static String getQuoteFromAPI() throws FileNotFoundException {
+        Gson gson = new Gson();
+        String jsonLine = "";
+        try{
+            String programmerURL = "http://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en";
+            URL url = new URL(programmerURL);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+
+            InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            jsonLine = bufferedReader.readLine();
+        }catch(IOException e) {
+            System.out.println(getQuote());
+        }
+
+        Qoute results = gson.fromJson(jsonLine,Qoute.class);
+        addToJSON(results);
+        return results.toString();
+    }
+
+
+
+
+
+
+    public static void addToJSON( Qoute qoute){
+        Gson gson = new Gson();
+        String path = "/Users/dawoodabuzahra/401/quotes/app/src/main/resources/quotes.json";
+        File file = new File(path);
+        try{
+            FileWriter fileWriter = new FileWriter(file,true);
+
+            gson.toJson( qoute, fileWriter);
+            fileWriter.close();
+        }catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+
     }
 
 }
